@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:touch="clr-namespace:TouchSam;assembly=TouchSam"
+             mc:Ignorable="d"
+             x:Class="Sample.MainPage"
+             Title="Sample TouchSam">
+
+    <StackLayout Padding="15">
+        <ContentView touch:Touch.Color="Accent"
+                     touch:Touch.Tap="{Binding CommandTap}"
+                     touch:Touch.IsEnabled="False"
+                     Margin="15"
+                     BackgroundColor="Beige">
+            <Label Text="Click me!" 
+                   Margin="15"
+               HorizontalOptions="Center"
+               VerticalOptions="CenterAndExpand" />
+        </ContentView>
+
+        <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
+                     touch:Touch.Color="Accent"
+                     touch:Touch.LongTap="{Binding CommandLongTap}"
+                     touch:Touch.LongTapLatency="200">
+            <Label Text="Long tap me!" 
+                   Margin="15"
+               HorizontalOptions="Center"
+               VerticalOptions="CenterAndExpand" />
+        </ContentView>
+
+        <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
+                     touch:Touch.Color="Accent"
+                     touch:Touch.Tap="{Binding CommandTap}"
+                     touch:Touch.LongTap="{Binding CommandLongTap}">
+            <Label Text="Press me!" 
+                   Margin="15"
+               HorizontalOptions="Center"
+               VerticalOptions="CenterAndExpand" />
+        </ContentView>
+
+        <Button Text="Change touch enabled"
+                Command="{Binding CommandChangeEnabled}"/>
+        
+        <Button Text="Next page"
+                Command="{Binding CommandNextPage}"/>
+    </StackLayout>
+
+</ContentPage>

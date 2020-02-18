@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>TouchSam</id>
+    <version>1.0.0.0</version>
+    <authors>Boris Krit</authors>
+    <owners>scriptboris</owners>
+    <licenseUrl>https://github.com/scriptboris/TouchSam/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/scriptboris/TouchSam</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/scriptBoris/TouchSam/master/nuget/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Allows you to bind click commands to elements Xamarin Forms</description>
+    <copyright>Copyright 2019</copyright>
+    <tags>xamarin xamarin-forms touch</tags>
+    <dependencies>
+      <dependency id="Xamarin.Forms" version="3.6.0.709228" />
+    </dependencies>
+  </metadata>
+	<files>
+	  <!--NETStandard-->
+	  <file src="..\src\TouchSam\bin\Release\netstandard2.0\TouchSam.dll" target="lib\netstandard2.0" />
+	  <file src="..\src\TouchSam\bin\Release\netstandard2.0\TouchSam.pdb" target="lib\netstandard2.0" />
+	  <!--Android-->
+	  <file src="..\src\TouchSam\bin\Release\netstandard2.0\TouchSam.dll" target="lib\MonoAndroid" />
+	  <file src="..\src\TouchSam\bin\Release\netstandard2.0\TouchSam.pdb" target="lib\MonoAndroid" />
+	  <file src="..\src\TouchSam.Droid\bin\Release\TouchSam.Droid.dll" target="lib\MonoAndroid" />
+	  <file src="..\src\TouchSam.Droid\bin\Release\TouchSam.Droid.pdb" target="lib\MonoAndroid" />
+	  <!--UWP-->
+	  <file src="..\src\TouchSam\bin\Release\netstandard2.0\TouchSam.dll" target="lib\uap" />
+	  <file src="..\src\TouchSam\bin\Release\netstandard2.0\TouchSam.pdb" target="lib\uap" />
+      <file src="..\src\TouchSam.UWP\bin\Release\TouchSam.UWP.dll" target="lib\uap" />
+	  <file src="..\src\TouchSam.UWP\bin\Release\TouchSam.UWP.pdb" target="lib\uap" />
+	</files>
+</package>
