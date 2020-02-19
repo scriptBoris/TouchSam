@@ -141,7 +141,7 @@ namespace TouchSam
         }
     }
 
-    internal class TouchEffect : RoutingEffect
+    public class TouchEffect : RoutingEffect
     {
         public TouchEffect() : base($"TouchSam.{nameof(Touch)}")
         {
