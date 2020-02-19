@@ -105,7 +105,7 @@ namespace TouchSam.Droid
 
         void OnTouch(object sender, View.TouchEventArgs args)
         {
-            if (isEnabled)
+            if (!isEnabled)
                 return;
 
             //var x = args.Event.GetX();
