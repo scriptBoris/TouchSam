@@ -10,8 +10,6 @@
 
     <StackLayout Padding="15">
         <ContentView touch:Touch.Color="Accent"
-                     touch:Touch.Tap="{Binding CommandTap}"
-                     touch:Touch.IsEnabled="False"
                      Margin="15"
                      BackgroundColor="Beige">
             <Label Text="Click me!" 
