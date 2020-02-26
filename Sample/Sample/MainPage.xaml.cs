@@ -25,7 +25,9 @@ namespace Sample
 
             CommandLongTap = new Command(() =>
             {
-                DisplayAlert("Success", "Long tap", "OK");
+                count++;
+                Text = count.ToString();
+                //DisplayAlert("Success", "Long tap", "OK");
             });
 
             CommandNextPage = new Command(() =>
@@ -41,6 +43,9 @@ namespace Sample
             BindingContext = this;
         }
 
+        private int count = 0;
+
+        public string Text { get; set; } = "0";
         public bool IsEnabledTouch { get; set; }
         public ICommand CommandChangeEnabled { get; set; }
         public ICommand CommandNextPage { get; set; }

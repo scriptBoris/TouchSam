@@ -10,6 +10,7 @@
 
     <StackLayout Padding="15">
         <ContentView touch:Touch.Color="Accent"
+                     touch:Touch.Tap="{Binding CommandTap}"
                      Margin="15"
                      BackgroundColor="Beige">
             <Label Text="Click me!" 
@@ -22,7 +23,7 @@
                      touch:Touch.Color="Accent"
                      touch:Touch.LongTap="{Binding CommandLongTap}"
                      touch:Touch.LongTapLatency="200">
-            <Label Text="Long tap me!" 
+            <Label Text="{Binding Text, StringFormat='Long tap me!  count:{0}'}" 
                    Margin="15"
                HorizontalOptions="Center"
                VerticalOptions="CenterAndExpand" />

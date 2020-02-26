@@ -125,6 +125,9 @@ namespace TouchSam
 
                 var commandEffect = new TouchEffect();
                 view.Effects.Add(commandEffect);
+
+                if (ConfigTouch.AutoChildrenInputTransparent && b is Layout && !ConfigTouch.GetChildrenInputTransparent(view))
+                    ConfigTouch.SetChildrenInputTransparent(view, true);
             }
             else
             {
@@ -132,6 +135,8 @@ namespace TouchSam
                     return;
 
                 view.Effects.Remove(effect);
+                if (ConfigTouch.AutoChildrenInputTransparent && b is Layout && ConfigTouch.GetChildrenInputTransparent(view))
+                    ConfigTouch.SetChildrenInputTransparent(view, false);
             }
         }
 
