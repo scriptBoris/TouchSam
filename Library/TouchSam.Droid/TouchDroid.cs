@@ -136,8 +136,7 @@ namespace TouchSam.Droid
             }
             else 
             if (args.Event.Action == MotionEventActions.Up ||
-                args.Event.Action == MotionEventActions.Cancel ||
-                args.Event.Action == MotionEventActions.Outside)
+                args.Event.Action == MotionEventActions.Cancel)
             {
                 args.Handled = true;
                 // UP
@@ -149,7 +148,8 @@ namespace TouchSam.Droid
                 else
                     TapAnimation(250, alpha, 0);
 
-                if (IsViewInBounds((int)args.Event.RawX, (int)args.Event.RawY))
+                if (args.Event.Action != MotionEventActions.Cancel && 
+                    IsViewInBounds((int)args.Event.RawX, (int)args.Event.RawY))
                 {
                     if (Touch.GetLongTap(Element) == null)
                         ClickHandler();
