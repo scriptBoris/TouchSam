@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>TouchSam</id>
-    <version>1.0.4</version>
+    <version>1.1.0</version>
     <authors>Boris Krit</authors>
     <description>Allows you to bind click commands to elements Xamarin Forms</description>
     <title>TouchSam</title>
@@ -12,7 +12,7 @@
     <icon>images\icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>Copyright 2019</copyright>
-    <tags>xamarin xamarin-forms touch</tags>
+    <tags>xamarin xamarin-forms touch longtap tap</tags>
     <repository type="git" url="https://https://github.com/scriptBoris/TouchSam.git"/>
     <dependencies>
       <dependency id="Xamarin.Forms" version="3.6.0.709228" />
