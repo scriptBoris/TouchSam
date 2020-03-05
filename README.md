@@ -63,7 +63,7 @@ protected override void OnLaunched(LaunchActivatedEventArgs e)
                  touch:Touch.LongTap="{Binding CommandLongTap}"
                  touch:Touch.LongTapLatency="200"
                  BackgroundColor="Beige"
-                 Padding=15>
+                 Padding="15">
         <Label Text="Click me!"/>
     </StackLayout>
 </ContentPage>
