@@ -4,45 +4,52 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:touch="clr-namespace:TouchSam;assembly=TouchSam"
+             xmlns:local="clr-namespace:Sample"
              mc:Ignorable="d"
              x:Class="Sample.MainPage"
              Title="Sample TouchSam">
+    
+    <d:ContentPage.BindingContext>
+        <local:MainPage/>
+    </d:ContentPage.BindingContext>
 
     <ScrollView>
         <StackLayout Padding="15">
             <Frame>
-                <ContentView touch:Touch.Color="Accent"
+                <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
+                             touch:Touch.Color="#ec407a"
                              touch:Touch.Tap="{Binding CommandTap}"
-                             Margin="15"
                              BackgroundColor="Beige">
-                    <Label Text="Click me!" 
+                    <Label Text="{Binding CountTap, StringFormat='Tap me!  ({0})'}" 
                            Margin="15"
-                       HorizontalOptions="Center"
-                       VerticalOptions="CenterAndExpand" />
+                           HorizontalOptions="Center"
+                           VerticalOptions="CenterAndExpand" />
                 </ContentView>
             </Frame>
 
             <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
-                         touch:Touch.Color="Accent"
+                         touch:Touch.Color="#5e35b1"
                          touch:Touch.LongTap="{Binding CommandLongTap}"
-                         touch:Touch.LongTapLatency="200">
-                <Label Text="{Binding Text, StringFormat='Long tap me!  count:{0}'}" 
+                         touch:Touch.LongTapLatency="400"
+                         BackgroundColor="Beige">
+                <Label Text="{Binding CountLongTap, StringFormat='Long tap me!  ({0})'}" 
                        Margin="15"
                    HorizontalOptions="Center"
                    VerticalOptions="CenterAndExpand" />
             </ContentView>
 
             <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
-                         touch:Touch.Color="Accent"
+                         touch:Touch.Color="#00796b"
                          touch:Touch.Tap="{Binding CommandTap}"
-                         touch:Touch.LongTap="{Binding CommandLongTap}">
+                         touch:Touch.LongTap="{Binding CommandLongTap}"
+                         BackgroundColor="Beige">
                 <Label Text="Press me!" 
                        Margin="15"
                    HorizontalOptions="Center"
                    VerticalOptions="CenterAndExpand" />
             </ContentView>
 
-            <Button Text="Change touch enabled"
+            <Button Text="{Binding IsEnabledTouch, StringFormat='Touch is enabled: {0}'}"
                     Command="{Binding CommandChangeEnabled}"/>
         
             <Button Text="Next page"

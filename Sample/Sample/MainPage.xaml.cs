@@ -20,13 +20,13 @@ namespace Sample
 
             CommandTap = new Command(() =>
             {
-                DisplayAlert("Success", "Tap", "OK");
+                CountTap++;
+                //DisplayAlert("Success", "Tap", "OK");
             });
 
             CommandLongTap = new Command(() =>
             {
-                count++;
-                Text = count.ToString();
+                CountLongTap++;
                 //DisplayAlert("Success", "Long tap", "OK");
             });
 
@@ -43,10 +43,9 @@ namespace Sample
             BindingContext = this;
         }
 
-        private int count = 0;
-
-        public string Text { get; set; } = "0";
-        public bool IsEnabledTouch { get; set; }
+        public int CountTap { get; set; }
+        public int CountLongTap { get; set; }
+        public bool IsEnabledTouch { get; set; } = true;
         public ICommand CommandChangeEnabled { get; set; }
         public ICommand CommandNextPage { get; set; }
         public ICommand CommandTap { get; set; }

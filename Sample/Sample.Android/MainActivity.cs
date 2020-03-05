@@ -19,7 +19,6 @@ namespace Sample.Droid
 
             base.OnCreate(savedInstanceState);
 
-            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             TouchSam.Droid.Initialize.Init();
             LoadApplication(new App());

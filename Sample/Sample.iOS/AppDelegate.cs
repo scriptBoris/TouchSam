@@ -24,6 +24,7 @@ namespace Sample.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
+            TouchSam.iOS.Initialize.Init();
 
             return base.FinishedLaunching(app, options);
         }
