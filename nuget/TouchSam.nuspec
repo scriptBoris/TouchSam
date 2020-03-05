@@ -2,9 +2,9 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>TouchSam</id>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <authors>Boris Krit</authors>
-    <description>Allows you to bind click commands to elements Xamarin Forms</description>
+    <description>Allows you to bind click commands to elements Xamarin.Forms</description>
     <title>TouchSam</title>
 
     <license type="expression">MIT</license>
@@ -34,5 +34,10 @@
 	  <file src="..\Library\TouchSam\bin\Release\netstandard2.0\TouchSam.pdb" target="lib\uap" />
     <file src="..\Library\TouchSam.UWP\bin\Release\TouchSam.UWP.dll" target="lib\uap" />
 	  <file src="..\Library\TouchSam.UWP\bin\Release\TouchSam.UWP.pdb" target="lib\uap" />
+    <!--iOS-->
+	  <file src="..\Library\TouchSam\bin\Release\netstandard2.0\TouchSam.dll" target="lib\Xamarin.iOS10" />
+	  <file src="..\Library\TouchSam\bin\Release\netstandard2.0\TouchSam.pdb" target="lib\Xamarin.iOS10" />
+	  <file src="..\Library\TouchSam.iOS\bin\Release\TouchSam.iOS.dll" target="lib\Xamarin.iOS10" />
+	  <file src="..\Library\TouchSam.iOS\bin\Release\TouchSam.iOS.pdb" target="lib\Xamarin.iOS10" />
 	</files>
 </package>
