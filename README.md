@@ -11,7 +11,7 @@ Install-Package TouchSam
 
 ## Supported Platforms
  - Android
- - iOS (сurrently not available)
+ - iOS
  - UWP
  
  
@@ -28,6 +28,22 @@ public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompa
           Xamarin.Forms.Forms.Init(this, savedInstanceState);
           TouchSam.Droid.Initialize.Init();
           LoadApplication(new App());
+     }
+}
+```
+
+## Install iOS project
+```c#
+public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
+{
+     public override bool FinishedLaunching(UIApplication app, NSDictionary options)
+     {
+          global::Xamarin.Forms.Forms.Init();
+          LoadApplication(new App());
+	  
+          TouchSam.iOS.Initialize.Init();
+
+          return base.FinishedLaunching(app, options);
      }
 }
 ```
