@@ -8,10 +8,12 @@
 Install-Package TouchSam
 ```
 
+
 ## Supported Platforms
  - Android
  - iOS (сurrently not available)
  - UWP
+ 
  
  ## Install android project
 ```c#
@@ -29,6 +31,8 @@ public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompa
      }
 }
 ```
+
+
 ## Install UWP project
 In file **App.xaml.cs**, enter `DataGridSam.UWP.Initialize.Init();` as below
 ```c#
@@ -51,6 +55,7 @@ protected override void OnLaunched(LaunchActivatedEventArgs e)
      ...
 }
 ```
+
 
 ## Example
 ```xml
