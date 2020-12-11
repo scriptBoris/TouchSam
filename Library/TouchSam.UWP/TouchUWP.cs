@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using TouchSam;
 using TouchSam.UWP;
@@ -14,11 +15,12 @@ namespace TouchSam.UWP
 {
     public class TouchUWP : PlatformEffect
     {
+        private const uint animationTime = 50;
         private bool isPressed;
+        private bool isCanTouch;
 
         public UIElement View => Control ?? Container;
         public bool IsDisposed => (Container as IVisualElementRenderer)?.Element == null;
-        private const uint animationTime = 50;
 
         public static void Init() { }
 
@@ -29,11 +31,13 @@ namespace TouchSam.UWP
                 View.PointerPressed += OnPointerPressed;
                 View.PointerReleased += OnPointerReleased;
                 View.PointerExited += OnPointerExited;
+                isCanTouch = Touch.GetIsEnabled(Element);
             }
         }
 
         protected override void OnDetached()
         {
+            isCanTouch = false;
             if (IsDisposed)
                 return;
 
@@ -42,6 +46,19 @@ namespace TouchSam.UWP
                 View.PointerPressed -= OnPointerPressed;
                 View.PointerReleased -= OnPointerReleased;
                 View.PointerExited -= OnPointerExited;
+            }
+        }
+
+        protected override void OnElementPropertyChanged(PropertyChangedEventArgs e)
+        {
+            base.OnElementPropertyChanged(e);
+
+            if (e.PropertyName == Touch.IsEnabledProperty.PropertyName)
+            {
+                isCanTouch = Touch.GetIsEnabled(Element);
+
+                if (!isCanTouch && isPressed)
+                    EndAnimationTap();
             }
         }
 
@@ -65,6 +82,9 @@ namespace TouchSam.UWP
 
         private void OnPointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
+            if (!isCanTouch)
+                return;
+
             if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
                 var p = e.GetCurrentPoint((UIElement)sender);
@@ -82,6 +102,9 @@ namespace TouchSam.UWP
 
         private void OnPointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
+            if (!isCanTouch)
+                return;
+
             EndAnimationTap();
             if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
