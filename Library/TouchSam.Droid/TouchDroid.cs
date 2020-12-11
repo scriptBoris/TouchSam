@@ -115,6 +115,7 @@ namespace TouchSam.Droid
 
             if (args.Event.Action == MotionEventActions.Down)
             {
+                StartClickHandler();
                 View.PlaySoundEffect(SoundEffects.Click);
                 // DOWN
                 if (EnableRipple)
@@ -167,6 +168,17 @@ namespace TouchSam.Droid
             View.GetLocationOnScreen(_location);
             _rect.Offset(_location[0], _location[1]);
             return _rect.Contains(x, y);
+        }
+
+        void StartClickHandler()
+        {
+            var cmd = Touch.GetStartTap(Element);
+            var param = Touch.GetStartTapParameter(Element);
+            if (cmd == null)
+                return;
+
+            if (cmd.CanExecute(param))
+                cmd.Execute(param);
         }
 
         void ClickHandler()

@@ -14,8 +14,11 @@ namespace TouchSam.UWP
 {
     public class TouchUWP : PlatformEffect
     {
+        private bool isPressed;
+
         public UIElement View => Control ?? Container;
         public bool IsDisposed => (Container as IVisualElementRenderer)?.Element == null;
+        private const uint animationTime = 50;
 
         public static void Init() { }
 
@@ -23,8 +26,9 @@ namespace TouchSam.UWP
         {
             if (View != null)
             {
-                View.Tapped += OnTapped;
-                View.RightTapped += OnRightTapped;
+                View.PointerPressed += OnPointerPressed;
+                View.PointerReleased += OnPointerReleased;
+                View.PointerExited += OnPointerExited;
             }
         }
 
@@ -35,41 +39,80 @@ namespace TouchSam.UWP
 
             if (View != null)
             {
-                View.Tapped -= OnTapped;
-                View.RightTapped -= OnRightTapped;
+                View.PointerPressed -= OnPointerPressed;
+                View.PointerReleased -= OnPointerReleased;
+                View.PointerExited -= OnPointerExited;
             }
         }
 
-        //private Windows.UI.Color color;
-        private async void Tap()
+        private async void StartAnimationTap()
         {
-            if (Element is ContentView cont)
+            isPressed = true;
+            if (Element is VisualElement cont)
             {
-                //var c = Touch.GetColor(Element);
-                //if (c == Color.Default)
-                //    return;
-
-                //color = c.ToWindowsColor();
-
-                await cont.RelScaleTo(0.2, 40, Easing.SinIn);
-                await cont.RelScaleTo(-0.2, 40, Easing.SinOut);
+                await cont.ScaleTo(0.95, animationTime, Easing.SinIn);
             }
         }
 
-        private void OnTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        private async void EndAnimationTap()
         {
-            Tap();
+            isPressed = false;
+            if (Element is VisualElement cont)
+            {
+                await cont.ScaleTo(1, animationTime, Easing.SinOut);
+            }
+        }
 
+        private void OnPointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            {
+                var p = e.GetCurrentPoint((UIElement)sender);
+                if (!p.Properties.IsLeftButtonPressed)
+                    return;
+            }
+
+            StartAnimationTap();
+
+            var cmd = Touch.GetStartTap(Element);
+            var param = Touch.GetStartTapParameter(Element);
+            if (cmd?.CanExecute(param) ?? false)
+                cmd.Execute(param);
+        }
+
+        private void OnPointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            EndAnimationTap();
+            if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            {
+                var p = e.GetCurrentPoint((UIElement)sender);
+                if (p.Properties.PointerUpdateKind == Windows.UI.Input.PointerUpdateKind.LeftButtonReleased)
+                {
+                    OnTapped();
+                }
+                else if (p.Properties.PointerUpdateKind == Windows.UI.Input.PointerUpdateKind.RightButtonReleased)
+                {
+                    OnRightTapped();
+                }
+            }
+        }
+
+        private void OnPointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (isPressed)
+                EndAnimationTap();
+        }
+
+        private void OnTapped()
+        {
             var cmd = Touch.GetTap(Element);
             var param = Touch.GetTapParameter(Element);
             if (cmd?.CanExecute(param) ?? false)
                 cmd.Execute(param);
         }
 
-        private void OnRightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private void OnRightTapped()
         {
-            Tap();
-
             var cmd = Touch.GetLongTap(Element);
             var param = Touch.GetLongTapParameter(Element);
             if (cmd?.CanExecute(param) ?? false)

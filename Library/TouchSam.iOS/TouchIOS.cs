@@ -28,6 +28,7 @@ namespace TouchSam.iOS
 
         private System.Timers.Timer timer;
         private UILongPressGestureRecognizer gestureTap;
+        private ICommand commandStartTap;
         private ICommand commandTap;
         private ICommand commandLongTap;
         private double longTapLatency;
@@ -36,6 +37,7 @@ namespace TouchSam.iOS
         protected override void OnAttached()
         {
             isCanTouch = Touch.GetIsEnabled(Element);
+            commandStartTap = Touch.GetStartTap(Element);
             commandTap = Touch.GetTap(Element);
             commandLongTap = Touch.GetLongTap(Element);
             longTapLatency = Touch.GetLongTapLatency(Element);
@@ -70,6 +72,8 @@ namespace TouchSam.iOS
                 UpdateEffectColor();
             else if (e.PropertyName == Touch.TapProperty.PropertyName)
                 commandTap = Touch.GetTap(Element);
+            else if (e.PropertyName == Touch.StartTapProperty.PropertyName)
+                commandStartTap = Touch.GetStartTap(Element);
             else if (e.PropertyName == Touch.LongTapProperty.PropertyName)
             {
                 commandLongTap = Touch.GetLongTap(Element);
@@ -96,6 +100,7 @@ namespace TouchSam.iOS
                 case UIGestureRecognizerState.Began:
                     if (isCanTouch)
                     {
+                        StartTapExecute();
                         isTaped = true;
                         if (timer != null)
                             timer.Start();
@@ -195,6 +200,16 @@ namespace TouchSam.iOS
                 var param = Touch.GetTapParameter(Element);
                 if (commandTap.CanExecute(param))
                     commandTap.Execute(param);
+            }
+        }
+
+        private void StartTapExecute()
+        {
+            if (commandStartTap != null)
+            {
+                var param = Touch.GetStartTapParameter(Element);
+                if (commandStartTap.CanExecute(param))
+                    commandStartTap.Execute(param);
             }
         }
 
