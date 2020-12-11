@@ -49,6 +49,7 @@
 
             <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
                          touch:Touch.Color="#00796b"
+                         touch:Touch.StartTap="{Binding CommandStartTap}"
                          touch:Touch.Tap="{Binding CommandTap}"
                          touch:Touch.LongTap="{Binding CommandLongTap}"
                          BackgroundColor="Beige">
