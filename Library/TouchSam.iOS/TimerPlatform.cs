@@ -44,8 +44,11 @@ namespace TouchSam.iOS
 
         public void Stop()
         {
-            IsEnabled = false;
-            Interlocked.Exchange(ref cancellation, new CancellationTokenSource()).Cancel();
+            if (IsEnabled)
+            {
+                IsEnabled = false;
+                Interlocked.Exchange(ref cancellation, new CancellationTokenSource()).Cancel();
+            }
         }
     }
 }
