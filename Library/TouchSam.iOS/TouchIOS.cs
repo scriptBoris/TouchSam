@@ -26,7 +26,8 @@ namespace TouchSam.iOS
         private CancellationTokenSource _cancellation;
         private bool isTaped;
 
-        private System.Timers.Timer timer;
+        private TimerPlatform timer;
+        //private System.Timers.Timer timer;
         private UILongPressGestureRecognizer gestureTap;
         private ICommand commandStartTap;
         private ICommand commandTap;
@@ -85,8 +86,6 @@ namespace TouchSam.iOS
             else if (e.PropertyName == Touch.LongTapLatencyProperty.PropertyName)
             {
                 longTapLatency = Touch.GetLongTapLatency(Element);
-                if (timer != null)
-                    timer.Interval = longTapLatency;
             }
         }
 
@@ -103,7 +102,7 @@ namespace TouchSam.iOS
                         StartTapExecute();
                         isTaped = true;
                         if (timer != null)
-                            timer.Start();
+                            timer.Start(longTapLatency);
                         TapAnimation(0.3, 0, _alpha, false);
                     }
                     break;
@@ -123,7 +122,7 @@ namespace TouchSam.iOS
                         }
                         else 
                         {
-                            if (timer.Enabled)
+                            if (timer.IsEnabled)
                             {
                                 TapExecute();
                                 timer.Stop();
@@ -144,7 +143,7 @@ namespace TouchSam.iOS
             }
         }
 
-        private void OnTimerElapsed(object o, System.Timers.ElapsedEventArgs e)
+        private void OnTimerElapsed()
         {
             if (isTaped)
             {
@@ -161,20 +160,16 @@ namespace TouchSam.iOS
         private void TimerInit()
         {
             if (timer == null)
-            {
-                timer = new System.Timers.Timer();
-                timer.Elapsed += OnTimerElapsed;
-                timer.Interval = longTapLatency;
-                timer.AutoReset = false;
-            }
+                timer = new TimerPlatform(OnTimerElapsed);
         }
+
         private void TimerDispose()
         {
             if (timer != null)
             {
                 timer.Stop();
-                timer.Elapsed -= OnTimerElapsed;
-                timer.Dispose();
+                //timer.Elapsed -= OnTimerElapsed;
+                //timer.Dispose();
                 timer = null;
             }
         }
