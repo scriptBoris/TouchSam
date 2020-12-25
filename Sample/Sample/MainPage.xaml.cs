@@ -18,6 +18,11 @@ namespace Sample
         {
             InitializeComponent();
 
+            CommandStartTap = new Command(() =>
+            {
+                CountStartTap++;
+            });
+
             CommandTap = new Command(() =>
             {
                 CountTap++;
@@ -43,11 +48,13 @@ namespace Sample
             BindingContext = this;
         }
 
+        public int CountStartTap { get; set; }
         public int CountTap { get; set; }
         public int CountLongTap { get; set; }
         public bool IsEnabledTouch { get; set; } = true;
         public ICommand CommandChangeEnabled { get; set; }
         public ICommand CommandNextPage { get; set; }
+        public ICommand CommandStartTap { get; set; }
         public ICommand CommandTap { get; set; }
         public ICommand CommandLongTap { get; set; }
     }

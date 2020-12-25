@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Initialize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimerPlatform.cs" />
     <Compile Include="TouchIOS.cs" />
   </ItemGroup>
   <ItemGroup>

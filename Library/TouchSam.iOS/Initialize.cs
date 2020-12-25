@@ -12,6 +12,7 @@ namespace TouchSam.iOS
         {
             Touch.Init();
             TouchIOS.Init();
+            TimerPlatform.Init();
         }
     }
 }

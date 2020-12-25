@@ -67,6 +67,36 @@ namespace TouchSam
 
 
 
+
+        // Start tap
+        public static readonly BindableProperty StartTapProperty = BindableProperty.CreateAttached(
+                "StartTap", typeof(ICommand), typeof(Touch), default(ICommand),
+                propertyChanged: PropertyChanged);
+        public static void SetStartTap(BindableObject view, ICommand value)
+        {
+            view.SetValue(StartTapProperty, value);
+        }
+        public static ICommand GetStartTap(BindableObject view)
+        {
+            return (ICommand)view.GetValue(StartTapProperty);
+        }
+
+
+
+        // Start tap param
+        public static readonly BindableProperty StartTapParameterProperty = BindableProperty.CreateAttached(
+                "StartTapParameter", typeof(object), typeof(Touch), null);
+        public static void SetStartTapParameter(BindableObject view, object value)
+        {
+            view.SetValue(StartTapParameterProperty, value);
+        }
+        public static object GetStartTapParameter(BindableObject view)
+        {
+            return view.GetValue(StartTapParameterProperty);
+        }
+
+
+
         // Long tap
         public static readonly BindableProperty LongTapProperty = BindableProperty.CreateAttached(
                 "LongTap", typeof(ICommand), typeof(Touch), default(ICommand),
@@ -116,7 +146,10 @@ namespace TouchSam
 
             var effect = view.Effects.FirstOrDefault(e => e is TouchEffect);
 
-            if (GetColor(b) != Color.Default || GetTap(b) != null || GetLongTap(b) != null)
+            if (GetColor(b) != Color.Default || 
+                GetTap(b) != null || 
+                GetLongTap(b) != null ||
+                GetStartTap(b) != null)
             {
                 view.InputTransparent = false;
 

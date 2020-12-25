@@ -26,8 +26,10 @@ namespace TouchSam.iOS
         private CancellationTokenSource _cancellation;
         private bool isTaped;
 
-        private System.Timers.Timer timer;
+        private TimerPlatform timer;
+        //private System.Timers.Timer timer;
         private UILongPressGestureRecognizer gestureTap;
+        private ICommand commandStartTap;
         private ICommand commandTap;
         private ICommand commandLongTap;
         private double longTapLatency;
@@ -36,6 +38,7 @@ namespace TouchSam.iOS
         protected override void OnAttached()
         {
             isCanTouch = Touch.GetIsEnabled(Element);
+            commandStartTap = Touch.GetStartTap(Element);
             commandTap = Touch.GetTap(Element);
             commandLongTap = Touch.GetLongTap(Element);
             longTapLatency = Touch.GetLongTapLatency(Element);
@@ -70,6 +73,8 @@ namespace TouchSam.iOS
                 UpdateEffectColor();
             else if (e.PropertyName == Touch.TapProperty.PropertyName)
                 commandTap = Touch.GetTap(Element);
+            else if (e.PropertyName == Touch.StartTapProperty.PropertyName)
+                commandStartTap = Touch.GetStartTap(Element);
             else if (e.PropertyName == Touch.LongTapProperty.PropertyName)
             {
                 commandLongTap = Touch.GetLongTap(Element);
@@ -81,8 +86,6 @@ namespace TouchSam.iOS
             else if (e.PropertyName == Touch.LongTapLatencyProperty.PropertyName)
             {
                 longTapLatency = Touch.GetLongTapLatency(Element);
-                if (timer != null)
-                    timer.Interval = longTapLatency;
             }
         }
 
@@ -96,9 +99,10 @@ namespace TouchSam.iOS
                 case UIGestureRecognizerState.Began:
                     if (isCanTouch)
                     {
+                        StartTapExecute();
                         isTaped = true;
                         if (timer != null)
-                            timer.Start();
+                            timer.Start(longTapLatency);
                         TapAnimation(0.3, 0, _alpha, false);
                     }
                     break;
@@ -118,7 +122,7 @@ namespace TouchSam.iOS
                         }
                         else 
                         {
-                            if (timer.Enabled)
+                            if (timer.IsEnabled)
                             {
                                 TapExecute();
                                 timer.Stop();
@@ -139,37 +143,33 @@ namespace TouchSam.iOS
             }
         }
 
-        private void OnTimerElapsed(object o, System.Timers.ElapsedEventArgs e)
+        private void OnTimerElapsed()
         {
             if (isTaped)
             {
                 isTaped = false;
 
-                Device.BeginInvokeOnMainThread(() =>
-                {
+                //Device.BeginInvokeOnMainThread(() =>
+                //{
                     LongTapExecute();
                     TapAnimation(0.3, _alpha);
-                });
+                //});
             }
         }
 
         private void TimerInit()
         {
             if (timer == null)
-            {
-                timer = new System.Timers.Timer();
-                timer.Elapsed += OnTimerElapsed;
-                timer.Interval = longTapLatency;
-                timer.AutoReset = false;
-            }
+                timer = new TimerPlatform(OnTimerElapsed);
         }
+
         private void TimerDispose()
         {
             if (timer != null)
             {
                 timer.Stop();
-                timer.Elapsed -= OnTimerElapsed;
-                timer.Dispose();
+                //timer.Elapsed -= OnTimerElapsed;
+                //timer.Dispose();
                 timer = null;
             }
         }
@@ -195,6 +195,16 @@ namespace TouchSam.iOS
                 var param = Touch.GetTapParameter(Element);
                 if (commandTap.CanExecute(param))
                     commandTap.Execute(param);
+            }
+        }
+
+        private void StartTapExecute()
+        {
+            if (commandStartTap != null)
+            {
+                var param = Touch.GetStartTapParameter(Element);
+                if (commandStartTap.CanExecute(param))
+                    commandStartTap.Execute(param);
             }
         }
 

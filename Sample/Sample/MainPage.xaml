@@ -15,6 +15,15 @@
 
     <ScrollView>
         <StackLayout Padding="15">
+
+            <Grid touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
+                  touch:Touch.StartTap="{Binding CommandStartTap}">
+                <Label Text="{Binding CountStartTap, StringFormat='Start tap me! ({0})'}"
+                       Margin="15"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"/>
+            </Grid>
+            
             <Frame>
                 <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
                              touch:Touch.Color="#ec407a"
@@ -40,6 +49,7 @@
 
             <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
                          touch:Touch.Color="#00796b"
+                         touch:Touch.StartTap="{Binding CommandStartTap}"
                          touch:Touch.Tap="{Binding CommandTap}"
                          touch:Touch.LongTap="{Binding CommandLongTap}"
                          BackgroundColor="Beige">
