@@ -149,11 +149,11 @@ namespace TouchSam.iOS
             {
                 isTaped = false;
 
-                Device.BeginInvokeOnMainThread(() =>
-                {
+                //Device.BeginInvokeOnMainThread(() =>
+                //{
                     LongTapExecute();
                     TapAnimation(0.3, _alpha);
-                });
+                //});
             }
         }
 
