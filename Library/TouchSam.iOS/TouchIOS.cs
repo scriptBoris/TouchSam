@@ -15,6 +15,27 @@ using Xamarin.Forms.Platform.iOS;
 [assembly: ExportEffect(typeof(TouchSam.iOS.TouchIOS), nameof(TouchSam.Touch))]
 namespace TouchSam.iOS
 {
+    public class MessageTesting : UIViewController
+    {
+        public static void Show(string message)
+        {
+            try
+            {
+                var alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
+                var alertDelay = NSTimer.CreateRepeatingScheduledTimer(3.0, 
+                    (obj) => {
+                        alert.DismissViewController(true, null);
+                        obj.Dispose();
+                    });
+
+                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
+            }
+            catch (Exception)
+            {
+            }
+        }
+    }
+
     [Preserve(AllMembers = true)]
     public class TouchIOS : PlatformEffect
     {
@@ -265,7 +286,8 @@ namespace TouchSam.iOS
                 Container.AddSubview(_layer);
                 Container.BringSubviewToFront(_layer);
                 _layer.Alpha = (float)start;
-                await UIView.AnimateAsync(duration, () => {
+                await UIView.AnimateAsync(duration, () =>
+                {
                     if (!token.IsCancellationRequested && !IsDisposed)
                         _layer.Alpha = (float)end;
                 });
