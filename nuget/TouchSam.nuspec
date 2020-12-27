@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>TouchSam</id>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
     <authors>Boris Krit</authors>
     <description>Allows you to bind click commands to elements Xamarin.Forms</description>
     <title>TouchSam</title>
@@ -18,10 +18,8 @@
       <dependency id="Xamarin.Forms" version="3.6.0.709228" />
     </dependencies>
     <releaseNotes>
-- Add command start tap
-- Change effect tap for UWP
-- Fixed functional for UWP, when Touch is disabled, but touch event can trigger
-- Fixed critical bug, when iOS long press causes application error
+- Add command finish tap
+- Fixed iOS long tap implementation on fast pressing
     </releaseNotes>
   </metadata>
 	<files>
