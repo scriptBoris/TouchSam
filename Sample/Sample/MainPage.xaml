@@ -23,7 +23,16 @@
                        HorizontalTextAlignment="Center"
                        VerticalTextAlignment="Center"/>
             </Grid>
-            
+
+            <Grid touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
+                  touch:Touch.FinishTap="{Binding CommandFinishTap}">
+                <Label Text="{Binding CountFinishTap, StringFormat='Finish tap me! ({0})'}"
+                       Margin="15"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"/>
+            </Grid>
+
+            <!--Tap-->
             <Frame>
                 <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
                              touch:Touch.Color="#ec407a"
@@ -36,6 +45,7 @@
                 </ContentView>
             </Frame>
 
+            <!--Long tap-->
             <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
                          touch:Touch.Color="#5e35b1"
                          touch:Touch.LongTap="{Binding CommandLongTap}"
@@ -47,9 +57,11 @@
                    VerticalOptions="CenterAndExpand" />
             </ContentView>
 
+            <!--Example-->
             <ContentView touch:Touch.IsEnabled="{Binding IsEnabledTouch}"
                          touch:Touch.Color="#00796b"
                          touch:Touch.StartTap="{Binding CommandStartTap}"
+                         touch:Touch.FinishTap="{Binding CommandFinishTap}"
                          touch:Touch.Tap="{Binding CommandTap}"
                          touch:Touch.LongTap="{Binding CommandLongTap}"
                          BackgroundColor="Beige">

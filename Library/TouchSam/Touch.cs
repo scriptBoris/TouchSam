@@ -97,6 +97,35 @@ namespace TouchSam
 
 
 
+        // Finish tap
+        public static readonly BindableProperty FinishTapProperty = BindableProperty.CreateAttached(
+                "FinishTap", typeof(ICommand), typeof(Touch), default(ICommand),
+                propertyChanged: PropertyChanged);
+        public static void SetFinishTap(BindableObject view, ICommand value)
+        {
+            view.SetValue(FinishTapProperty, value);
+        }
+        public static ICommand GetFinishTap(BindableObject view)
+        {
+            return (ICommand)view.GetValue(FinishTapProperty);
+        }
+
+
+
+        // Finish tap param
+        public static readonly BindableProperty FinishTapParameterProperty = BindableProperty.CreateAttached(
+                "FinishTapParameter", typeof(object), typeof(Touch), null);
+        public static void SetFinishTapParameter(BindableObject view, object value)
+        {
+            view.SetValue(FinishTapParameterProperty, value);
+        }
+        public static object GetFinishTapParameter(BindableObject view)
+        {
+            return view.GetValue(FinishTapParameterProperty);
+        }
+
+
+
         // Long tap
         public static readonly BindableProperty LongTapProperty = BindableProperty.CreateAttached(
                 "LongTap", typeof(ICommand), typeof(Touch), default(ICommand),
@@ -149,7 +178,8 @@ namespace TouchSam
             if (GetColor(b) != Color.Default || 
                 GetTap(b) != null || 
                 GetLongTap(b) != null ||
-                GetStartTap(b) != null)
+                GetStartTap(b) != null ||
+                GetFinishTap(b) != null)
             {
                 view.InputTransparent = false;
 

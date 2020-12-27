@@ -103,7 +103,7 @@ namespace TouchSam.Droid
             }
         }
 
-        void OnTouch(object sender, View.TouchEventArgs args)
+        private void OnTouch(object sender, View.TouchEventArgs args)
         {
             if (!isEnabled)
                 return;
@@ -115,7 +115,7 @@ namespace TouchSam.Droid
 
             if (args.Event.Action == MotionEventActions.Down)
             {
-                StartClickHandler();
+                StartTap();
                 View.PlaySoundEffect(SoundEffects.Click);
                 // DOWN
                 if (EnableRipple)
@@ -153,16 +153,17 @@ namespace TouchSam.Droid
                     IsViewInBounds((int)args.Event.RawX, (int)args.Event.RawY))
                 {
                     if (Touch.GetLongTap(Element) == null)
-                        ClickHandler();
+                        Tap();
                     else if (timer == null || timer.Enabled)
-                        ClickHandler();
+                        Tap();
                 }
 
+                FinishTap();
                 timer?.Stop();
             }
         }
 
-        bool IsViewInBounds(int x, int y)
+        private bool IsViewInBounds(int x, int y)
         {
             View.GetDrawingRect(_rect);
             View.GetLocationOnScreen(_location);
@@ -170,7 +171,7 @@ namespace TouchSam.Droid
             return _rect.Contains(x, y);
         }
 
-        void StartClickHandler()
+        private void StartTap()
         {
             var cmd = Touch.GetStartTap(Element);
             var param = Touch.GetStartTapParameter(Element);
@@ -181,7 +182,18 @@ namespace TouchSam.Droid
                 cmd.Execute(param);
         }
 
-        void ClickHandler()
+        private void FinishTap()
+        {
+            var cmd = Touch.GetFinishTap(Element);
+            var param = Touch.GetFinishTapParameter(Element);
+            if (cmd == null)
+                return;
+
+            if (cmd.CanExecute(param))
+                cmd.Execute(param);
+        }
+
+        private void Tap()
         {
             var cmd = Touch.GetTap(Element);
             var param = Touch.GetTapParameter(Element);
@@ -192,14 +204,14 @@ namespace TouchSam.Droid
                 cmd.Execute(param);
         }
 
-        void LongClickHandler()
+        private void LongTap()
         {
             var cmdLong = Touch.GetLongTap(Element);
             var paramLong = Touch.GetLongTapParameter(Element);
 
             if (cmdLong == null)
             {
-                ClickHandler();
+                Tap();
                 return;
             }
 
@@ -215,7 +227,7 @@ namespace TouchSam.Droid
             if (IsViewInBounds((int)x, (int)y))
             {
                 timer.Stop();
-                Xamarin.Forms.Device.BeginInvokeOnMainThread(LongClickHandler);
+                Xamarin.Forms.Device.BeginInvokeOnMainThread(LongTap);
             }
         }
 

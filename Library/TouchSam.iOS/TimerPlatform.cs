@@ -12,7 +12,7 @@ namespace TouchSam.iOS
     public class TimerPlatform
     {
         private readonly Action callback;
-        private CancellationTokenSource cancellation;
+        private List<CancellationTokenSource> cancels = new List<CancellationTokenSource>();
 
         public bool IsEnabled { get; private set; }
 
@@ -25,8 +25,12 @@ namespace TouchSam.iOS
 
         public void Start(double time)
         {
+            foreach (var cancelItem in cancels)
+                cancelItem.Cancel();
+
             var timeSpan = TimeSpan.FromMilliseconds(time);
-            cancellation = new CancellationTokenSource();
+            var cancel = new CancellationTokenSource();
+            cancels.Add(cancel);
             IsEnabled = true;
 
             Device.StartTimer(timeSpan,
@@ -34,21 +38,24 @@ namespace TouchSam.iOS
                 {
                     IsEnabled = false;
 
-                    if (cancellation.IsCancellationRequested)
-                        return false;
-
-                    callback.Invoke();
+                    if (!cancel.IsCancellationRequested)
+                    {
+                        callback.Invoke();
+                    }
+                    cancels.Remove(cancel);
                     return false;
                 });
         }
 
         public void Stop()
         {
-            if (IsEnabled)
-            {
-                IsEnabled = false;
-                Interlocked.Exchange(ref cancellation, new CancellationTokenSource()).Cancel();
-            }
+            IsEnabled = false;
+            foreach (var cancelItem in cancels)
+                cancelItem.Cancel();
+
+            cancels.Clear();
+
+            //Interlocked.Exchange(ref cancellation, new CancellationTokenSource()).Cancel();
         }
     }
 }

@@ -15,6 +15,7 @@ using Xamarin.Forms.Platform.iOS;
 [assembly: ExportEffect(typeof(TouchSam.iOS.TouchIOS), nameof(TouchSam.Touch))]
 namespace TouchSam.iOS
 {
+    [Preserve(AllMembers = true)]
     public class TouchIOS : PlatformEffect
     {
         public static void Init() { }
@@ -30,6 +31,7 @@ namespace TouchSam.iOS
         //private System.Timers.Timer timer;
         private UILongPressGestureRecognizer gestureTap;
         private ICommand commandStartTap;
+        private ICommand commandFinishTap;
         private ICommand commandTap;
         private ICommand commandLongTap;
         private double longTapLatency;
@@ -39,6 +41,7 @@ namespace TouchSam.iOS
         {
             isCanTouch = Touch.GetIsEnabled(Element);
             commandStartTap = Touch.GetStartTap(Element);
+            commandFinishTap = Touch.GetFinishTap(Element);
             commandTap = Touch.GetTap(Element);
             commandLongTap = Touch.GetLongTap(Element);
             longTapLatency = Touch.GetLongTapLatency(Element);
@@ -68,13 +71,25 @@ namespace TouchSam.iOS
             base.OnElementPropertyChanged(e);
 
             if (e.PropertyName == Touch.IsEnabledProperty.PropertyName)
+            {
                 isCanTouch = Touch.GetIsEnabled(Element);
+            }
             else if (e.PropertyName == Touch.ColorProperty.PropertyName)
+            {
                 UpdateEffectColor();
+            }
             else if (e.PropertyName == Touch.TapProperty.PropertyName)
+            {
                 commandTap = Touch.GetTap(Element);
+            }
             else if (e.PropertyName == Touch.StartTapProperty.PropertyName)
+            {
                 commandStartTap = Touch.GetStartTap(Element);
+            }
+            else if (e.PropertyName == Touch.FinishTapProperty.PropertyName)
+            {
+                commandFinishTap = Touch.GetFinishTap(Element);
+            }
             else if (e.PropertyName == Touch.LongTapProperty.PropertyName)
             {
                 commandLongTap = Touch.GetLongTap(Element);
@@ -111,6 +126,7 @@ namespace TouchSam.iOS
                     {
                         isTaped = false;
                         TapAnimation(0.3, _alpha);
+                        FinishTapExecute();
                     }
                     break;
                 case UIGestureRecognizerState.Ended:
@@ -129,6 +145,7 @@ namespace TouchSam.iOS
                             }
                         }
                         TapAnimation(0.3, _alpha);
+                        FinishTapExecute();
                     }
                     isTaped = false;
                     break;
@@ -138,22 +155,9 @@ namespace TouchSam.iOS
                     {
                         isTaped = false;
                         TapAnimation(0.3, _alpha);
+                        FinishTapExecute();
                     }
                     break;
-            }
-        }
-
-        private void OnTimerElapsed()
-        {
-            if (isTaped)
-            {
-                isTaped = false;
-
-                //Device.BeginInvokeOnMainThread(() =>
-                //{
-                    LongTapExecute();
-                    TapAnimation(0.3, _alpha);
-                //});
             }
         }
 
@@ -168,9 +172,19 @@ namespace TouchSam.iOS
             if (timer != null)
             {
                 timer.Stop();
-                //timer.Elapsed -= OnTimerElapsed;
-                //timer.Dispose();
                 timer = null;
+            }
+        }
+
+        private void OnTimerElapsed()
+        {
+            if (isTaped)
+            {
+                isTaped = false;
+
+                LongTapExecute();
+                FinishTapExecute();
+                TapAnimation(0.3, _alpha);
             }
         }
 
@@ -205,6 +219,16 @@ namespace TouchSam.iOS
                 var param = Touch.GetStartTapParameter(Element);
                 if (commandStartTap.CanExecute(param))
                     commandStartTap.Execute(param);
+            }
+        }
+
+        private void FinishTapExecute()
+        {
+            if (commandFinishTap != null)
+            {
+                var param = Touch.GetFinishTapParameter(Element);
+                if (commandFinishTap.CanExecute(param))
+                    commandFinishTap.Execute(param);
             }
         }
 
