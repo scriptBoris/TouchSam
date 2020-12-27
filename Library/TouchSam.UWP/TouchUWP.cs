@@ -88,16 +88,14 @@ namespace TouchSam.UWP
             if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
                 var p = e.GetCurrentPoint((UIElement)sender);
-                if (!p.Properties.IsLeftButtonPressed)
+                if ( !(p.Properties.IsLeftButtonPressed || p.Properties.IsRightButtonPressed) )
+                {
                     return;
+                }
             }
 
             StartAnimationTap();
-
-            var cmd = Touch.GetStartTap(Element);
-            var param = Touch.GetStartTapParameter(Element);
-            if (cmd?.CanExecute(param) ?? false)
-                cmd.Execute(param);
+            OnStartTapped();
         }
 
         private void OnPointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -105,10 +103,13 @@ namespace TouchSam.UWP
             if (!isCanTouch)
                 return;
 
-            EndAnimationTap();
             if (e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
                 var p = e.GetCurrentPoint((UIElement)sender);
+                if (!(p.Properties.PointerUpdateKind == Windows.UI.Input.PointerUpdateKind.LeftButtonReleased ||
+                    p.Properties.PointerUpdateKind == Windows.UI.Input.PointerUpdateKind.RightButtonReleased))
+                    return;
+
                 if (p.Properties.PointerUpdateKind == Windows.UI.Input.PointerUpdateKind.LeftButtonReleased)
                 {
                     OnTapped();
@@ -118,12 +119,31 @@ namespace TouchSam.UWP
                     OnRightTapped();
                 }
             }
+
+            EndAnimationTap();
+            OnFinishTapped();
         }
 
         private void OnPointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (isPressed)
                 EndAnimationTap();
+        }
+
+        private void OnStartTapped()
+        {
+            var cmd = Touch.GetStartTap(Element);
+            var param = Touch.GetStartTapParameter(Element);
+            if (cmd?.CanExecute(param) ?? false)
+                cmd.Execute(param);
+        }
+
+        private void OnFinishTapped()
+        {
+            var cmd = Touch.GetFinishTap(Element);
+            var param = Touch.GetFinishTapParameter(Element);
+            if (cmd?.CanExecute(param) ?? false)
+                cmd.Execute(param);
         }
 
         private void OnTapped()
