@@ -9,6 +9,7 @@ using Xamarin.Forms;
 
 namespace TouchSam.iOS
 {
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class TimerPlatform
     {
         private readonly Action callback;

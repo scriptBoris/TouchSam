@@ -5,9 +5,14 @@ using Xamarin.Forms;
 
 namespace TouchSam
 {
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public static class Touch
     {
-        public static void Init() { }
+        public static void Init() 
+        {
+            ConfigTouch.Init();
+            TouchEffect.Init();
+        }
 
 
         // Is enabled
@@ -209,9 +214,14 @@ namespace TouchSam
         }
     }
 
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class TouchEffect : RoutingEffect
     {
         public TouchEffect() : base($"TouchSam.{nameof(Touch)}")
+        {
+        }
+
+        internal static void Init()
         {
         }
     }

@@ -13,6 +13,7 @@ using Xamarin.Forms.Platform.UWP;
 [assembly: ExportEffect(typeof(TouchUWP), nameof(Touch))]
 namespace TouchSam.UWP
 {
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class TouchUWP : PlatformEffect
     {
         private const uint animationTime = 50;

@@ -3,6 +3,7 @@ using Xamarin.Forms;
 
 namespace TouchSam
 {
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     internal static class ConfigTouch
     {
         public static void Init()

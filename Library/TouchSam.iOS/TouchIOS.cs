@@ -15,6 +15,7 @@ using Xamarin.Forms.Platform.iOS;
 [assembly: ExportEffect(typeof(TouchSam.iOS.TouchIOS), nameof(TouchSam.Touch))]
 namespace TouchSam.iOS
 {
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class MessageTesting : UIViewController
     {
         public static void Show(string message)
@@ -36,7 +37,7 @@ namespace TouchSam.iOS
         }
     }
 
-    [Preserve(AllMembers = true)]
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class TouchIOS : PlatformEffect
     {
         public static void Init() { }

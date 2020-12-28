@@ -13,6 +13,7 @@ using Xamarin.Forms.Platform.Android;
 [assembly: Xamarin.Forms.ExportEffect(typeof(TouchSam.Droid.TouchDroid), nameof(TouchSam.Touch))]
 namespace TouchSam.Droid
 {
+    [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class TouchDroid : PlatformEffect
     {
         readonly Rect _rect = new Rect();
