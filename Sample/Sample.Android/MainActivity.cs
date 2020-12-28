@@ -20,7 +20,7 @@ namespace Sample.Droid
             base.OnCreate(savedInstanceState);
 
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-            TouchSam.Droid.Initialize.Init();
+            TouchSam.Droid.TouchDroid.Preserve();
             LoadApplication(new App());
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

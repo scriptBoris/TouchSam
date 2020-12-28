@@ -9,6 +9,8 @@ namespace TouchSam.UWP
     [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public static class Initialize
     {
+        [Obsolete("Use preserve method, platform dependent. " +
+            "Example: TouchSam.UWP.TouchUWP.Preserve")]
         public static void Init()
         {
             Touch.Init();

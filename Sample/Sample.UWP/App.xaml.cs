@@ -57,7 +57,7 @@ namespace Sample.UWP
                 var assemblys = new List<Assembly>();
                 assemblys.Add(typeof(TouchSam.UWP.TouchUWP).GetTypeInfo().Assembly);
 
-                TouchSam.UWP.Initialize.Init();
+                TouchSam.UWP.TouchUWP.Preserve();
                 Xamarin.Forms.Forms.Init(e, assemblys);
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)

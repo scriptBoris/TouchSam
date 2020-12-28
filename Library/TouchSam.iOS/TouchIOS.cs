@@ -16,7 +16,7 @@ using Xamarin.Forms.Platform.iOS;
 namespace TouchSam.iOS
 {
     [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
-    public class MessageTesting : UIViewController
+    internal class MessageTesting : UIViewController
     {
         public static void Show(string message)
         {
@@ -40,24 +40,32 @@ namespace TouchSam.iOS
     [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class TouchIOS : PlatformEffect
     {
+        [Obsolete("Use TouchSam.iOS.TouchIOS.Preserve")]
         public static void Init() { }
+
+        public static void Preserve()
+        {
+            Touch.Preserve();
+            TimerPlatform.Preserve();
+            TouchUITapGestureRecognizerDelegate.Preserve();
+        }
 
         public bool IsDisposed => (Container as IVisualElementRenderer)?.Element == null;
         public UIView View => Control ?? Container;
+
         private UIView _layer;
         private double _alpha;
         private CancellationTokenSource _cancellation;
         private bool isTaped;
 
-        private TimerPlatform timer;
-        //private System.Timers.Timer timer;
+        internal TimerPlatform timer;
         private UILongPressGestureRecognizer gestureTap;
         private ICommand commandStartTap;
         private ICommand commandFinishTap;
         private ICommand commandTap;
         private ICommand commandLongTap;
-        private double longTapLatency;
-        private bool isCanTouch;
+        internal double longTapLatency;
+        internal bool isCanTouch;
 
         protected override void OnAttached()
         {
@@ -69,6 +77,7 @@ namespace TouchSam.iOS
             longTapLatency = Touch.GetLongTapLatency(Element);
             gestureTap = new UILongPressGestureRecognizer(OnTap);
             gestureTap.MinimumPressDuration = 0;
+            gestureTap.Delegate = new TouchUITapGestureRecognizerDelegate();
 
             if (commandLongTap != null)
                 TimerInit();
@@ -126,6 +135,7 @@ namespace TouchSam.iOS
             }
         }
 
+        private CGPoint startPoint;
         private void OnTap(UILongPressGestureRecognizer press)
         {
             var coordinate = press.LocationInView(press.View);
@@ -136,6 +146,7 @@ namespace TouchSam.iOS
                 case UIGestureRecognizerState.Began:
                     if (isCanTouch)
                     {
+                        startPoint = coordinate;
                         StartTapExecute();
                         isTaped = true;
                         if (timer != null)
@@ -149,6 +160,18 @@ namespace TouchSam.iOS
                         isTaped = false;
                         TapAnimation(0.3, _alpha);
                         FinishTapExecute();
+                    }
+                    else if (isTaped)
+                    {
+                        var diffX = Math.Abs(coordinate.X - startPoint.X);
+                        var diffY = Math.Abs(coordinate.Y - startPoint.Y);
+                        var maxDiff = Math.Max(diffX, diffY);
+                        if (maxDiff > 4)
+                        {
+                            isTaped = false;
+                            TapAnimation(0.3, _alpha);
+                            FinishTapExecute();
+                        }
                     }
                     break;
                 case UIGestureRecognizerState.Ended:
@@ -299,5 +322,19 @@ namespace TouchSam.iOS
             }
         }
         #endregion
+    }
+
+    [Preserve(AllMembers = true)]
+    internal class TouchUITapGestureRecognizerDelegate : UIGestureRecognizerDelegate
+    {
+        public static void Preserve()
+        {
+        }
+
+        public override bool ShouldRecognizeSimultaneously(UIGestureRecognizer gestureRecognizer,
+            UIGestureRecognizer otherGestureRecognizer)
+        {
+            return true;
+        }
     }
 }

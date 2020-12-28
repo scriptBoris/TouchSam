@@ -6,7 +6,12 @@ namespace TouchSam
     [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     internal static class ConfigTouch
     {
+        [Obsolete("Use Preserve")]
         public static void Init()
+        {
+        }
+
+        public static void Preserve()
         {
         }
 

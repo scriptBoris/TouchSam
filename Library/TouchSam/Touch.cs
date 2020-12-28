@@ -8,10 +8,18 @@ namespace TouchSam
     [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public static class Touch
     {
+        [Obsolete("Use preserve method, platform dependent. " +
+            "Example: TouchSam.iOS.TouchIOS.Preserve")]
         public static void Init() 
         {
             ConfigTouch.Init();
             TouchEffect.Init();
+        }
+
+        public static void Preserve()
+        {
+            ConfigTouch.Preserve();
+            TouchEffect.Preserve();
         }
 
 
@@ -221,7 +229,12 @@ namespace TouchSam
         {
         }
 
+        [Obsolete("Use Preserve")]
         internal static void Init()
+        {
+        }
+
+        internal static void Preserve()
         {
         }
     }

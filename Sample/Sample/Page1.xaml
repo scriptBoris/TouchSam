@@ -7,31 +7,56 @@
              mc:Ignorable="d"
              x:Class="Sample.Page1"
              Title="New page">
-    <StackLayout>
-        
-        <ContentView touch:Touch.Color="Accent"
-                     touch:Touch.Tap="{Binding CommandTap}">
-            <Label Text="Click me!" 
-                   Margin="15"
-               HorizontalOptions="Center"
-               VerticalOptions="CenterAndExpand" />
-        </ContentView>
+    <ScrollView>
+        <StackLayout>
 
-        <ContentView touch:Touch.Color="Accent"
-                     touch:Touch.LongTap="{Binding CommandLongTap}">
-            <Label Text="Long tap me!" 
-                   Margin="15"
-               HorizontalOptions="Center"
-               VerticalOptions="CenterAndExpand" />
-        </ContentView>
+            <ContentView touch:Touch.Color="Accent"
+                         touch:Touch.Tap="{Binding CommandTap}">
+                <Label Text="Click me!" 
+                       Margin="15"
+                   HorizontalOptions="Center"
+                   VerticalOptions="CenterAndExpand" />
+            </ContentView>
 
-        <ContentView touch:Touch.Color="Accent"
-                     touch:Touch.Tap="{Binding CommandTap}"
-                     touch:Touch.LongTap="{Binding CommandLongTap}">
-            <Label Text="Press me!" 
-                   Margin="15"
-               HorizontalOptions="Center"
-               VerticalOptions="CenterAndExpand" />
-        </ContentView>
-    </StackLayout>
+            <ContentView touch:Touch.Color="Accent"
+                         touch:Touch.LongTap="{Binding CommandLongTap}">
+                <Label Text="Long tap me!" 
+                       Margin="15"
+                   HorizontalOptions="Center"
+                   VerticalOptions="CenterAndExpand" />
+            </ContentView>
+
+            <ContentView touch:Touch.Color="Accent"
+                         touch:Touch.Tap="{Binding CommandTap}"
+                         touch:Touch.LongTap="{Binding CommandLongTap}">
+                <Label Text="Press me!" 
+                       Margin="15"
+                   HorizontalOptions="Center"
+                   VerticalOptions="CenterAndExpand" />
+            </ContentView>
+
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+            <Label Text="Sample text" Margin="15"/>
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

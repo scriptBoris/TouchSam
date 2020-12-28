@@ -23,7 +23,13 @@ namespace TouchSam.UWP
         public UIElement View => Control ?? Container;
         public bool IsDisposed => (Container as IVisualElementRenderer)?.Element == null;
 
+        [Obsolete("Use Preserve")]
         public static void Init() { }
+
+        public static void Preserve()
+        {
+            Touch.Preserve();
+        }
 
         protected override void OnAttached()
         {

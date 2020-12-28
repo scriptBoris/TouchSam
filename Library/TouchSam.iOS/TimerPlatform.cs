@@ -10,14 +10,19 @@ using Xamarin.Forms;
 namespace TouchSam.iOS
 {
     [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
-    public class TimerPlatform
+    internal class TimerPlatform
     {
         private readonly Action callback;
         private List<CancellationTokenSource> cancels = new List<CancellationTokenSource>();
 
         public bool IsEnabled { get; private set; }
 
+        [Obsolete("Use Preserve")]
         public static void Init() { }
+
+        internal static void Preserve()
+        {
+        }
 
         public TimerPlatform(Action callback)
         {
