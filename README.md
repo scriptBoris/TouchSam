@@ -60,6 +60,7 @@ protected override void OnLaunched(LaunchActivatedEventArgs e)
           rootFrame = new Frame();
           rootFrame.NavigationFailed += OnNavigationFailed;
 	  
+	  // Preserve assembly important TouchUWP class
 	  var assemblys = new List<Assembly>();
           assemblys.Add(typeof(TouchSam.UWP.TouchUWP).GetTypeInfo().Assembly);
 	  TouchSam.UWP.Initialize.Init();
