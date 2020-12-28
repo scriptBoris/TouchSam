@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -52,8 +53,12 @@ namespace Sample.UWP
 
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
-                Xamarin.Forms.Forms.Init(e);
+                #warning For Release mode, the assembly was not removed by linker
+                var assemblys = new List<Assembly>();
+                assemblys.Add(typeof(TouchSam.UWP.TouchUWP).GetTypeInfo().Assembly);
+
                 TouchSam.UWP.Initialize.Init();
+                Xamarin.Forms.Forms.Init(e, assemblys);
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
