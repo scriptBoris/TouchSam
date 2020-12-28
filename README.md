@@ -26,7 +26,7 @@ public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompa
           base.OnCreate(savedInstanceState);
 
           Xamarin.Forms.Forms.Init(this, savedInstanceState);
-          TouchSam.Droid.Initialize.Init();
+          TouchSam.Droid.TouchDroid.Preserve();
           LoadApplication(new App());
      }
 }
@@ -41,7 +41,7 @@ public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsAppli
           global::Xamarin.Forms.Forms.Init();
           LoadApplication(new App());
 	  
-          TouchSam.iOS.Initialize.Init();
+          TouchSam.iOS.TouchIOS.Preserve();
 
           return base.FinishedLaunching(app, options);
      }
@@ -63,7 +63,7 @@ protected override void OnLaunched(LaunchActivatedEventArgs e)
 	  // Preserve assembly important TouchUWP class
 	  var assemblys = new List<Assembly>();
           assemblys.Add(typeof(TouchSam.UWP.TouchUWP).GetTypeInfo().Assembly);
-	  TouchSam.UWP.Initialize.Init();
+	  TouchSam.UWP.TouchUWP.Preserve();
           Xamarin.Forms.Forms.Init(e);
 
           if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
