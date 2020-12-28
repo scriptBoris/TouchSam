@@ -59,8 +59,11 @@ protected override void OnLaunched(LaunchActivatedEventArgs e)
      {
           rootFrame = new Frame();
           rootFrame.NavigationFailed += OnNavigationFailed;
+	  
+	  var assemblys = new List<Assembly>();
+          assemblys.Add(typeof(TouchSam.UWP.TouchUWP).GetTypeInfo().Assembly);
+	  TouchSam.UWP.Initialize.Init();
           Xamarin.Forms.Forms.Init(e);
-          TouchSam.UWP.Initialize.Init();
 
           if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
           {
