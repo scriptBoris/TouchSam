@@ -47,7 +47,8 @@ namespace TouchSam.iOS
         {
             Touch.Preserve();
             TimerPlatform.Preserve();
-            TouchUITapGestureRecognizerDelegate.Preserve();
+            GestureTouchSam.Preserve();
+            GView.Preserve();
         }
 
         public bool IsDisposed => (Container as IVisualElementRenderer)?.Element == null;
@@ -59,7 +60,8 @@ namespace TouchSam.iOS
         private bool isTaped;
 
         internal TimerPlatform timer;
-        private UILongPressGestureRecognizer gestureTap;
+        private GestureTouchSam gestureTap;
+        private GestureTouchSam nestedGesture;
         private ICommand commandStartTap;
         private ICommand commandFinishTap;
         private ICommand commandTap;
@@ -75,9 +77,16 @@ namespace TouchSam.iOS
             commandTap = Touch.GetTap(Element);
             commandLongTap = Touch.GetLongTap(Element);
             longTapLatency = Touch.GetLongTapLatency(Element);
-            gestureTap = new UILongPressGestureRecognizer(OnTap);
+            gestureTap = new GestureTouchSam(OnTap);
             gestureTap.MinimumPressDuration = 0;
-            gestureTap.Delegate = new TouchUITapGestureRecognizerDelegate();
+            gestureTap.ShouldReceiveTouch += (UIGestureRecognizer g, UITouch t) =>
+            {
+                return true;
+            };
+            gestureTap.ShouldRecognizeSimultaneously += (UIGestureRecognizer g, UIGestureRecognizer t) =>
+            {
+                return true;
+            };
 
             if (commandLongTap != null)
                 TimerInit();
@@ -136,14 +145,43 @@ namespace TouchSam.iOS
         }
 
         private CGPoint startPoint;
-        private void OnTap(UILongPressGestureRecognizer press)
+        internal void OnTap(UILongPressGestureRecognizer press)
         {
             var coordinate = press.LocationInView(press.View);
             bool isInside = press.View.PointInside(coordinate, null);
 
+            // If this gesture detect nested TouchSam gesture
+            if (nestedGesture != null)
+            {
+                nestedGesture.OnTap(press);
+
+                // Detect END
+                if (press.State != UIGestureRecognizerState.Changed)
+                    nestedGesture = null;
+
+                return;
+            }
+
             switch (press.State)
             {
                 case UIGestureRecognizerState.Began:
+                    // Detect nested TouchSam gestures
+                    var childsGestures = GetNestedTouchs(View);
+                    foreach (var item in childsGestures)
+                    {
+                        if (item.Gesture == gestureTap)
+                            continue;
+
+                        var point = press.LocationInView(item.View);
+                        if (item.View.PointInside(point, null))
+                        {
+                            nestedGesture = item.Gesture;
+                            nestedGesture.OnTap(press);
+                            return;
+                        }
+                    }
+
+                    // Without nested TouchSam gestures
                     if (isCanTouch)
                     {
                         startPoint = coordinate;
@@ -277,6 +315,30 @@ namespace TouchSam.iOS
             }
         }
 
+        private List<GView> GetNestedTouchs(UIView view, int immersion = 0)
+        {
+            var res = new List<GView>();
+
+            if (immersion > 0)
+            {
+                var match = view.GestureRecognizers?.FirstOrDefault(x => x is GestureTouchSam) as GestureTouchSam;
+                if (match != null)
+                    res.Add(new GView(view, match));
+            }
+
+            if (view.Subviews == null || view.Subviews.Length == 0)
+            {
+                return res;
+            }
+            else
+            {
+                foreach (var subview in view.Subviews)
+                    res.AddRange(GetNestedTouchs(subview, ++immersion));
+
+                return res;
+            }
+        }
+
         #region TouchEffects
         private void UpdateEffectColor()
         {
@@ -325,16 +387,29 @@ namespace TouchSam.iOS
     }
 
     [Preserve(AllMembers = true)]
-    internal class TouchUITapGestureRecognizerDelegate : UIGestureRecognizerDelegate
+    internal class GestureTouchSam : UILongPressGestureRecognizer
     {
-        public static void Preserve()
-        {
-        }
+        public static void Preserve() { }
+        internal Action<UILongPressGestureRecognizer> OnTap;
 
-        public override bool ShouldRecognizeSimultaneously(UIGestureRecognizer gestureRecognizer,
-            UIGestureRecognizer otherGestureRecognizer)
+        public GestureTouchSam(Action<UILongPressGestureRecognizer> action) : base(action)
         {
-            return true;
+            OnTap = action;
+        }
+    }
+
+    [Preserve(AllMembers = true)]
+    internal class GView
+    {
+        public static void Preserve() { }
+
+        internal UIView View;
+        internal GestureTouchSam Gesture;
+
+        public GView(UIView view, GestureTouchSam gesture)
+        {
+            View = view;
+            Gesture = gesture;
         }
     }
 }

@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:touch="clr-namespace:TouchSam;assembly=TouchSam"
+             xmlns:local="clr-namespace:Sample"
+             mc:Ignorable="d"
+             x:Class="Sample.PageNestedTap"
+             Title="Nested tap">
+    <d:ContentPage.BindingContext>
+        <local:PageNestedTap/>
+    </d:ContentPage.BindingContext>
+
+    <StackLayout>
+        <!--Nested tap (GRID)-->
+        <Grid touch:Touch.Color="Gray"
+              touch:Touch.Tap="{Binding CommandTap}"
+              Padding="10"
+              BackgroundColor="Beige">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+
+            <Frame Grid.Column="1" 
+                   Padding="0"
+                   CornerRadius="10"
+                   IsClippedToBounds="True"
+                   HasShadow="False">
+                <ContentView touch:Touch.Color="Blue"
+                             touch:Touch.Tap="{Binding CommandActions}"
+                             BackgroundColor="#FFF"
+                             Padding="10">
+                    <Label Text="Action"/>
+                </ContentView>
+            </Frame>
+            
+            <Label Text="Nested tap"/>
+
+            <Label Grid.Row="1"
+                   Grid.ColumnSpan="2"
+                   Text="BODY (Grid)"/>
+        </Grid>
+
+        <!--Nested tap2 (StackLayout)-->
+        <StackLayout touch:Touch.Color="Gray"
+                     touch:Touch.Tap="{Binding CommandTap}"
+                     Padding="10"
+                     BackgroundColor="Beige">
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Nested tap2" HorizontalOptions="FillAndExpand"/>
+
+                <Frame Padding="0"
+                       CornerRadius="10"
+                       IsClippedToBounds="True"
+                       HasShadow="False">
+                    <ContentView touch:Touch.Color="Blue"
+                                 touch:Touch.Tap="{Binding CommandActions}"
+                                 BackgroundColor="#FFF"
+                                 Padding="10">
+                        <Label Text="Action"/>
+                    </ContentView>
+                </Frame>
+            </StackLayout>
+
+            <Label Text="BODY (StackLayout)"/>
+        </StackLayout>
+    </StackLayout>
+</ContentPage>

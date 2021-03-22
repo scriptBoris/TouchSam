@@ -15,7 +15,8 @@ namespace TouchSam.iOS
             Touch.Init();
             TouchIOS.Init();
             TimerPlatform.Init();
-            TouchUITapGestureRecognizerDelegate.Preserve();
+            GestureTouchSam.Preserve();
+            GView.Preserve();
         }
     }
 }

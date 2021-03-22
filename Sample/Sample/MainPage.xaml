@@ -74,8 +74,11 @@
             <Button Text="{Binding IsEnabledTouch, StringFormat='Touch is enabled: {0}'}"
                     Command="{Binding CommandChangeEnabled}"/>
         
-            <Button Text="Next page"
-                    Command="{Binding CommandNextPage}"/>
+            <Button Text="Tap with scroll"
+                    Command="{Binding CommandWithScroll}"/>
+
+            <Button Text="Nested taps"
+                    Command="{Binding CommandNestedTaps}"/>
         </StackLayout>
     </ScrollView>
 

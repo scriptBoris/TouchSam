@@ -20,7 +20,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Page1.xaml">
+    <Compile Update="PageWithScroll.xaml.cs">
+      <DependentUpon>PageWithScroll.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="PageNestedTap.xaml.cs">
+      <DependentUpon>PageNestedTap.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="PageWithScroll.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="PageNestedTap.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>

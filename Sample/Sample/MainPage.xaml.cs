@@ -40,9 +40,14 @@ namespace Sample
                 //DisplayAlert("Success", "Long tap", "OK");
             });
 
-            CommandNextPage = new Command(() =>
+            CommandWithScroll = new Command(() =>
             {
-                Navigation.PushAsync(new Page1());
+                Navigation.PushAsync(new PageWithScroll());
+            });
+
+            CommandNestedTaps = new Command(() =>
+            {
+                Navigation.PushAsync(new PageNestedTap());
             });
 
             CommandChangeEnabled = new Command(() =>
@@ -59,7 +64,8 @@ namespace Sample
         public int CountLongTap { get; set; }
         public bool IsEnabledTouch { get; set; } = true;
         public ICommand CommandChangeEnabled { get; set; }
-        public ICommand CommandNextPage { get; set; }
+        public ICommand CommandWithScroll { get; set; }
+        public ICommand CommandNestedTaps { get; set; }
         public ICommand CommandStartTap { get; set; }
         public ICommand CommandFinishTap { get; set; }
         public ICommand CommandTap { get; set; }

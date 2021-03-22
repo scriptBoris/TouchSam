@@ -6,6 +6,7 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Xamarin.Forms.Platform.Android;
 
@@ -16,60 +17,71 @@ namespace TouchSam.Droid
     [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
     public class TouchDroid : PlatformEffect
     {
-        readonly Rect _rect = new Rect();
-        readonly int[] _location = new int[2];
+        private readonly Rect _rect = new Rect();
+        private readonly int[] _location = new int[2];
+        private float startX;
+        private float startY;
+        private float currentX;
+        private float currentY;
 
         private System.Timers.Timer timer;
-        private MotionEvent motion;
-        private Color color;
-        private byte alpha;
-        private ObjectAnimator animation;
-        private FrameLayout viewOverlay;
+        private Color tapColor;
+        private byte tapColorAlpha;
+        private ObjectAnimator animator;
+        private FrameLayout overlayAnimation;
         private RippleDrawable ripple;
-        private bool isEnabled;
+        private GestureTouchSam gesture;
 
-        public bool EnableRipple => Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
+        public bool IsEnabled => Touch.GetIsEnabled(Element);
+        public bool IsSdk21 => Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
         public View View => Control ?? Container;
         public bool IsDisposed => (Container as IVisualElementRenderer)?.Element == null;
 
         [Obsolete("Use Preserve")]
         public static void Init()
         {
+            GestureTouchSam.Preserve();
+            GView.Preserve();
         }
 
         public static void Preserve()
         {
             Touch.Preserve();
+            GestureTouchSam.Preserve();
+            GView.Preserve();
         }
 
         protected override void OnAttached()
         {
-            if (Touch.GetLongTap(Element) != null)
-            {
-                timer = new System.Timers.Timer();
-                timer.Elapsed += OnTimerEvent;
-            }
-            isEnabled = Touch.GetIsEnabled(Element);
+            // Gesture touches
+            gesture = new GestureTouchSam(this, null, View);
+            View.TouchDelegate = gesture;
             View.Clickable = true;
             View.LongClickable = true;
             View.SoundEffectsEnabled = true;
 
-            viewOverlay = new FrameLayout(Container.Context)
+            // Animation tap
+            overlayAnimation = new FrameLayout(Container.Context)
             {
                 LayoutParameters = new ViewGroup.LayoutParams(-1, -1),
                 Clickable = false,
                 Focusable = false,
             };
-            Container.LayoutChange += ViewOnLayoutChange;
 
-            if (EnableRipple)
-                viewOverlay.Background = CreateRipple(color);
+            Container.AddView(overlayAnimation);
+            Container.LayoutChange += OnViewLayoutChanged;
+            overlayAnimation.BringToFront();
 
-            SetEffectColor();
-            View.Touch += OnTouch;
+            if (IsSdk21)
+            {
+                tapColor = Touch.GetColor(Element).ToAndroid();
+                overlayAnimation.Background = CreateRipple(tapColor);
+            }
 
-            Container.AddView(viewOverlay);
-            viewOverlay.BringToFront();
+            // Updates
+            UpdateAnimationColor();
+            UpdateLongTapCommand();
+            UpdateLongTapLatency();
         }
 
         protected override void OnDetached()
@@ -77,23 +89,20 @@ namespace TouchSam.Droid
             if (IsDisposed)
                 return;
 
-            Container.RemoveView(viewOverlay);
-            viewOverlay.Pressed = false;
-            viewOverlay.Foreground = null;
-            viewOverlay.Dispose();
-            Container.LayoutChange -= ViewOnLayoutChange;
+            Container.RemoveView(overlayAnimation);
+            Container.LayoutChange -= OnViewLayoutChanged;
 
-            if (timer != null)
-            {
-                timer.Elapsed -= OnTimerEvent;
-                timer.Stop();
-                timer.Close();
-            }
+            overlayAnimation.Pressed = false;
+            overlayAnimation.Foreground = null;
+            overlayAnimation.Dispose();
 
-            if (EnableRipple)
+            TimerDispose();
+
+            if (IsSdk21)
                 ripple?.Dispose();
 
-            View.Touch -= OnTouch;
+            gesture.Dispose();
+            gesture = null;
         }
 
         protected override void OnElementPropertyChanged(PropertyChangedEventArgs e)
@@ -102,82 +111,93 @@ namespace TouchSam.Droid
 
             if (e.PropertyName == Touch.ColorProperty.PropertyName)
             {
-                SetEffectColor();
+                UpdateAnimationColor();
             }
-            else if (e.PropertyName == Touch.IsEnabledProperty.PropertyName)
+            else if (e.PropertyName == Touch.LongTapProperty.PropertyName)
             {
-                isEnabled = Touch.GetIsEnabled(Element);
+                UpdateLongTapCommand();
+            }
+            else if (e.PropertyName == Touch.LongTapLatencyProperty.PropertyName)
+            {
+                UpdateLongTapLatency();
             }
         }
 
-        private void OnTouch(object sender, View.TouchEventArgs args)
+        private void UpdateAnimationColor()
         {
-            if (!isEnabled)
+            var color = Touch.GetColor(Element);
+            if (color == Xamarin.Forms.Color.Default)
                 return;
 
-            //var x = args.Event.GetX();
-            //var y = args.Event.GetY();
-            //Console.Out.WriteLine($"x: {x}; y: {y} (action: {args.Event.Action.ToString()})");
-            motion = args.Event;
+            tapColor = color.ToAndroid();
+            tapColorAlpha = (tapColor.A == 255) ? (byte)80 : tapColor.A;
 
-            if (args.Event.Action == MotionEventActions.Down)
-            {
-                StartTap();
-                View.PlaySoundEffect(SoundEffects.Click);
-                // DOWN
-                if (EnableRipple)
-                    ForceStartRipple(args.Event.GetX(), args.Event.GetY());
-                else
-                    StartAnimation();
-
-                if (Touch.GetLongTap(Element) != null)
-                {
-                    if (timer == null)
-                    {
-                        timer = new System.Timers.Timer();
-                        timer.Elapsed += OnTimerEvent;
-                    }
-                    timer.Interval = Touch.GetLongTapLatency(Element);
-                    timer.AutoReset = false;
-                    timer.Start();
-                }
-            }
-            else 
-            if (args.Event.Action == MotionEventActions.Up ||
-                args.Event.Action == MotionEventActions.Cancel)
-            {
-                args.Handled = true;
-                // UP
-                if (IsDisposed)
-                    return;
-
-                if (EnableRipple)
-                    ForceEndRipple();
-                else
-                    TapAnimation(250, alpha, 0);
-
-                if (args.Event.Action != MotionEventActions.Cancel && 
-                    IsViewInBounds((int)args.Event.RawX, (int)args.Event.RawY))
-                {
-                    if (Touch.GetLongTap(Element) == null)
-                        Tap();
-                    else if (timer == null || timer.Enabled)
-                        Tap();
-                }
-
-                FinishTap();
-                timer?.Stop();
-            }
+            if (IsSdk21)
+                ripple.SetColor(GetRippleColorSelector(tapColor));
         }
 
-        private bool IsViewInBounds(int x, int y)
+        private void UpdateLongTapCommand()
         {
-            View.GetDrawingRect(_rect);
-            View.GetLocationOnScreen(_location);
-            _rect.Offset(_location[0], _location[1]);
-            return _rect.Contains(x, y);
+            var command = Touch.GetLongTap(Element);
+            TimerDispose();
+
+            if (command != null)
+            {
+                timer = new System.Timers.Timer();
+                timer.Elapsed += OnTimerEvent;
+                timer.Interval = Touch.GetLongTapLatency(Element);
+                timer.AutoReset = false;
+            }
         }
 
+        private void UpdateLongTapLatency()
+        {
+            if (timer == null)
+                return;
+
+            timer.Interval = Touch.GetLongTapLatency(Element);
+        }
+
+        private void TimerDispose()
+        {
+            if (timer == null)
+                return;
+
+            timer.Elapsed -= OnTimerEvent;
+            timer.Stop();
+            timer.Close();
+            timer.Dispose();
+            timer = null;
+        }
+
+        private void OnTimerEvent(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            int x = (int)currentX;
+            int y = (int)currentY;
+            if (IsViewInBounds(View, x, y))
+            {
+                timer.Stop();
+                Xamarin.Forms.Device.BeginInvokeOnMainThread(LongTap);
+            }
+        }
+
+        private void AnimationStart(float x, float y)
+        {
+            if (IsSdk21)
+                ForceStartRipple(x, y);
+            else
+                AnimationStartOverlay();
+        }
+
+        private void AnimationEnd()
+        {
+            if (IsSdk21)
+                ForceEndRipple();
+            else
+                TapAnimation(250, tapColorAlpha, 0);
+        }
+
+        #region command actions
         private void StartTap()
         {
             var cmd = Touch.GetStartTap(Element);
@@ -225,112 +245,80 @@ namespace TouchSam.Droid
             if (cmdLong.CanExecute(paramLong))
                 cmdLong.Execute(paramLong);
         }
+        #endregion command actions
 
-        #region TouchPart
-        private void OnTimerEvent(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            var x = motion.GetX();
-            var y = motion.GetY();
-            if (IsViewInBounds((int)x, (int)y))
-            {
-                timer.Stop();
-                Xamarin.Forms.Device.BeginInvokeOnMainThread(LongTap);
-            }
-        }
-
-        private void SetEffectColor()
-        {
-            var color = Touch.GetColor(Element);
-            if (color == Xamarin.Forms.Color.Default)
-            {
-                return;
-            }
-
-            this.color = color.ToAndroid();
-            alpha = this.color.A == 255 ? (byte)80 : this.color.A;
-
-            if (EnableRipple)
-            {
-                ripple.SetColor(GetPressedColorSelector(this.color));
-            }
-        }
-
-        private void ViewOnLayoutChange(object sender, View.LayoutChangeEventArgs layoutChangeEventArgs)
-        {
-            var group = (ViewGroup)sender;
-            if (group == null || IsDisposed)
-                return;
-
-            viewOverlay.Right = group.Width;
-            viewOverlay.Bottom = group.Height;
-        }
-        #endregion
-
-        #region Ripple
+        #region Animation ripple
         private RippleDrawable CreateRipple(Color color)
         {
             if (Element is Xamarin.Forms.Layout)
             {
                 var mask = new ColorDrawable(Color.White);
-                return ripple = new RippleDrawable(GetPressedColorSelector(color), null, mask);
+                ripple = new RippleDrawable(GetRippleColorSelector(color), null, mask);
+                return ripple;
             }
 
             var back = View.Background;
             if (back == null)
             {
                 var mask = new ColorDrawable(Color.White);
-                return ripple = new RippleDrawable(GetPressedColorSelector(color), null, mask);
+                return ripple = new RippleDrawable(GetRippleColorSelector(color), null, mask);
             }
 
             if (back is RippleDrawable)
             {
                 ripple = (RippleDrawable)back.GetConstantState().NewDrawable();
-                ripple.SetColor(GetPressedColorSelector(color));
+                ripple.SetColor(GetRippleColorSelector(color));
 
                 return ripple;
             }
 
-            return ripple = new RippleDrawable(GetPressedColorSelector(color), back, null);
+            return ripple = new RippleDrawable(GetRippleColorSelector(color), back, null);
         }
 
-        private static ColorStateList GetPressedColorSelector(int pressedColor)
+        private static ColorStateList GetRippleColorSelector(int pressedColor)
         {
-            return new ColorStateList(
-                new[] { new int[] { } },
-                new[] { pressedColor, });
+            return new ColorStateList
+            (
+                new int[][] { new int[] { } },
+                new int[] { pressedColor, }
+            );
         }
 
         private void ForceStartRipple(float x, float y)
         {
-            if (IsDisposed || !(viewOverlay.Background is RippleDrawable bc))
+            if (IsDisposed || !(overlayAnimation.Background is RippleDrawable ripple))
                 return;
 
-            viewOverlay.BringToFront();
-            bc.SetHotspot(x, y);
-            viewOverlay.Pressed = true;
+            overlayAnimation.BringToFront();
+
+            if (overlayAnimation.Width > 200 || overlayAnimation.Height > 200)
+                ripple.SetHotspot(x, y);
+
+            overlayAnimation.Pressed = true;
         }
 
         private void ForceEndRipple()
         {
-            if (IsDisposed) return;
+            if (IsDisposed) 
+                return;
 
-            viewOverlay.Pressed = false;
+            overlayAnimation.Pressed = false;
         }
 
-        #endregion
+        #endregion Animation ripple
 
-        #region Overlay
-        private void StartAnimation()
+        #region Animation fade
+        private void AnimationStartOverlay()
         {
             if (IsDisposed)
                 return;
 
             ClearAnimation();
 
-            viewOverlay.BringToFront();
-            var color = this.color;
-            color.A = alpha;
-            viewOverlay.SetBackgroundColor(color);
+            overlayAnimation.BringToFront();
+            var color = this.tapColor;
+            color.A = tapColorAlpha;
+            overlayAnimation.SetBackgroundColor(color);
         }
 
         private void TapAnimation(long duration, byte startAlpha, byte endAlpha)
@@ -338,27 +326,27 @@ namespace TouchSam.Droid
             if (IsDisposed)
                 return;
 
-            viewOverlay.BringToFront();
+            overlayAnimation.BringToFront();
 
-            var start = color;
-            var end = color;
+            var start = tapColor;
+            var end = tapColor;
             start.A = startAlpha;
             end.A = endAlpha;
 
             ClearAnimation();
-            animation = ObjectAnimator.OfObject(viewOverlay,
+            animator = ObjectAnimator.OfObject(overlayAnimation,
                 "BackgroundColor",
                 new ArgbEvaluator(),
                 start.ToArgb(),
                 end.ToArgb());
-            animation.SetDuration(duration);
-            animation.RepeatCount = 0;
-            animation.RepeatMode = ValueAnimatorRepeatMode.Restart;
-            animation.Start();
-            animation.AnimationEnd += AnimationOnAnimationEnd;
+            animator.SetDuration(duration);
+            animator.RepeatCount = 0;
+            animator.RepeatMode = ValueAnimatorRepeatMode.Restart;
+            animator.Start();
+            animator.AnimationEnd += OnAnimationEnd;
         }
 
-        private void AnimationOnAnimationEnd(object sender, EventArgs eventArgs)
+        private void OnAnimationEnd(object sender, EventArgs eventArgs)
         {
             if (IsDisposed) return;
 
@@ -367,12 +355,184 @@ namespace TouchSam.Droid
 
         private void ClearAnimation()
         {
-            if (animation == null) return;
-            animation.AnimationEnd -= AnimationOnAnimationEnd;
-            animation.Cancel();
-            animation.Dispose();
-            animation = null;
+            if (animator == null)
+                return;
+            animator.AnimationEnd -= OnAnimationEnd;
+            animator.Cancel();
+            animator.Dispose();
+            animator = null;
         }
-        #endregion
+        #endregion Animation fade
+
+        private List<GView> GetNestedTouchs(View view)
+        {
+            var res = new List<GView>();
+
+            if (view.TouchDelegate is GestureTouchSam g && g != gesture)
+                res.Add(new GView(view, g));
+
+            if (view is ViewGroup gview)
+            {
+                for (int i = 0; i < gview.ChildCount; i++)
+                {
+                    var child = gview.GetChildAt(i);
+                    res.AddRange(GetNestedTouchs(child));
+                }
+            }
+
+            return res;
+        }
+
+        private void OnViewLayoutChanged(object sender, View.LayoutChangeEventArgs layoutChangeEventArgs)
+        {
+            var group = (ViewGroup)sender;
+            if (group == null || IsDisposed)
+                return;
+
+            overlayAnimation.Right = group.Width;
+            overlayAnimation.Bottom = group.Height;
+        }
+
+        private bool IsViewInBounds(View view, int x, int y)
+        {
+            view.GetDrawingRect(_rect);
+            view.GetLocationOnScreen(_location);
+
+            var rect = new Xamarin.Forms.Rectangle(_location[0], _location[1], _rect.Width(), _rect.Height());
+            bool res = rect.Contains(x, y);
+            return res;
+        }
+
+        [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
+        internal class GestureTouchSam : TouchDelegate
+        {
+            private readonly View view;
+            private readonly TouchDroid host;
+            private readonly float touchSlop;
+            private bool isGestureProcessed;
+            private GestureTouchSam nestedGesture;
+
+            internal static void Preserve() { }
+            internal GestureTouchSam(TouchDroid host, Rect bounds, View delegateView) : base(bounds, delegateView)
+            {
+                this.view = delegateView;
+                this.host = host;
+                this.touchSlop = ViewConfiguration.Get(view.Context).ScaledTouchSlop;
+            }
+
+            public override bool OnTouchEvent(MotionEvent e)
+            {
+                float x = e.RawX;
+                float y = e.RawY;
+                float internalX = e.GetX();
+                float internalY = e.GetY();
+                host.currentX = x;
+                host.currentY = y;
+
+                // Detect nestered gesture
+                if (nestedGesture != null)
+                {
+                    nestedGesture.OnTouchEvent(e);
+
+                    // Detect END for nestered gesture
+                    if (e.Action == MotionEventActions.Cancel || e.Action == MotionEventActions.Up)
+                        nestedGesture = null;
+
+                    return true;
+                }
+
+                // START
+                if (e.Action == MotionEventActions.Down)
+                {
+                    if (!host.IsEnabled || isGestureProcessed)
+                        return true;
+
+                    // Detect nested TouchSam gestures
+                    var childs = host.GetNestedTouchs(view);
+                    foreach (var item in childs)
+                    {
+                        if (host.IsViewInBounds(item.View, (int)x, (int)y))
+                        {
+                            nestedGesture = item.Gesture;
+                            nestedGesture.OnTouchEvent(e);
+                            return true;
+                        }
+                    }
+
+                    isGestureProcessed = true;
+                    host.startX = x;
+                    host.startY = y;
+                    host.StartTap();
+                    host.AnimationStart(internalX, internalY);
+
+                    // Try start long tap timer
+                    if (Touch.GetLongTap(host.Element) != null)
+                    {
+                        host.timer?.Stop();
+                        host.timer?.Start();
+                    }
+                }
+                // MOVE
+                else if (e.Action == MotionEventActions.Move || e.Action == MotionEventActions.Scroll)
+                {
+                    if (!isGestureProcessed)
+                        return true;
+
+                    float deltaX = Math.Abs(host.startX - x);
+                    float deltaY = Math.Abs(host.startY - y);
+
+                    if (deltaX > touchSlop || deltaY > touchSlop || !host.IsEnabled)
+                    {
+                        host.FinishTap();
+                        host.AnimationEnd();
+                        host.timer?.Stop();
+                        isGestureProcessed = false;
+                    }
+                }
+                // UP
+                else if (e.Action == MotionEventActions.Up || e.Action == MotionEventActions.Cancel)
+                {
+                    if (host.IsDisposed || !isGestureProcessed)
+                        return true;
+
+                    isGestureProcessed = false;
+                    host.AnimationEnd();
+                    host.FinishTap();
+
+                    if (e.Action == MotionEventActions.Up && host.IsEnabled)
+                    {
+                        // Tap sound :)
+                        view.PlaySoundEffect(SoundEffects.Click);
+
+                        if (host.IsViewInBounds(view, (int)e.RawX, (int)e.RawY))
+                        {
+                            if (Touch.GetLongTap(host.Element) == null)
+                                host.Tap();
+                            else if (host.timer == null || host.timer.Enabled)
+                                host.Tap();
+                        }
+                    }
+
+                    host.timer?.Stop();
+                }
+
+                return true;
+            }
+        }
+
+        [Xamarin.Forms.Internals.Preserve(AllMembers = true)]
+        internal class GView
+        {
+            internal static void Preserve() { }
+
+            internal View View;
+            internal GestureTouchSam Gesture;
+
+            internal GView(View view, GestureTouchSam gesture)
+            {
+                View = view;
+                Gesture = gesture;
+            }
+        }
     }
 }

@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:touch="clr-namespace:TouchSam;assembly=TouchSam"
+             xmlns:local="clr-namespace:Sample"
+             mc:Ignorable="d"
+             x:Class="Sample.PageWithScroll"
+             x:Name="root"
+             Title="With scroll view">
+    
+    <d:ContentPage.BindingContext>
+        <local:PageWithScroll/>
+    </d:ContentPage.BindingContext>
+    
+    <ScrollView>
+        <StackLayout BindableLayout.ItemsSource="{Binding Items}"
+                     Spacing="0">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate>
+                    <Grid touch:Touch.Color="Accent"
+                          touch:Touch.Tap="{Binding BindingContext.CommandTap, Source={Reference root}}"
+                          touch:Touch.TapParameter="{Binding .}"
+                          touch:Touch.LongTap="{Binding BindingContext.CommandLongTap, Source={Reference root}}"
+                          touch:Touch.LongTapParameter="{Binding .}"
+                          Padding="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="80"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Image Grid.Column="0"
+                               Grid.Row="0"
+                               HeightRequest="60" WidthRequest="60"
+                               Aspect="AspectFill"
+                               HorizontalOptions="FillAndExpand"
+                               VerticalOptions="FillAndExpand"
+                               Source="{Binding Image}"/>
+                        
+                        <Label Grid.Column="1"
+                               Grid.Row="0"
+                               Text="{Binding FirstName}"/>
+                        
+                        <Label Grid.Column="2"
+                               Grid.Row="0"
+                               Text="{Binding LastName}"/>
+                        
+                        <Label Grid.Column="3"
+                               Grid.Row="0"
+                               Text="{Binding BirthDate}"/>
+                    </Grid>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
