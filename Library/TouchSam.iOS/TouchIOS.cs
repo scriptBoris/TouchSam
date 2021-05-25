@@ -147,8 +147,8 @@ namespace TouchSam.iOS
         private CGPoint startPoint;
         internal void OnTap(UILongPressGestureRecognizer press)
         {
-            var coordinate = press.LocationInView(press.View);
-            bool isInside = press.View.PointInside(coordinate, null);
+            var coordinate = press.LocationInView(View);
+            bool isInside = View.PointInside(coordinate, null);
 
             // If this gesture detect nested TouchSam gesture
             if (nestedGesture != null)
